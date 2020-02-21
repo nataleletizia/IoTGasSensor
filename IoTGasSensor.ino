@@ -5,6 +5,7 @@
 #define greenLedPin 8
 #define buzzerPin 10
 #define smokeSensorPin A0
+#define smokeLevel 400
 #define DEBUG true
 
 SoftwareSerial wifiModule(rxPin,txPin); // Connect TX pin of esp to the pin 2 of Arduino and RX pin of esp to the pin 3 of Arduino
@@ -46,7 +47,7 @@ void loop()
 
   int smokeSensor = analogRead(smokeSensorPin);
 
-  if (smokeSensor > 400)
+  if (smokeSensor > smokeLevel)
 
   {
 
@@ -91,7 +92,7 @@ void loop()
 
       webPage +="</p>";
 
-      if (smokeSensor > 400)
+      if (smokeSensor > smokeLevel)
 
   {
 
