@@ -14,7 +14,10 @@ String apikeyWrite = "";
 
 SoftwareSerial wifiModule(rxPin,txPin); // Connect TX pin of esp to the pin 2 of Arduino and RX pin of esp to the pin 3 of Arduino
 
-const unsigned int interval = 26000;
+
+unsigned long startMillis;  //some global variables available anywhere in the program
+unsigned long currentMillis;
+const unsigned long interval = 26000;
 
 String host = "api.thingspeak.com"; // cloud API host name
 String port = "80";
@@ -50,7 +53,8 @@ void setup()
   esp8266Command("AT+CWJAP=\""+ssid+"\",\""+apPassword+"\"\r\n",1000,DEBUG);
   
   delay(4000);
-  
+
+  startMillis = millis();
   
 }
   
@@ -87,6 +91,10 @@ void loop()
 
   }
 
+currentMillis = millis(); 
+
+if (currentMillis - startMillis >= interval)  //test whether the period has elapsed
+  {
   String url = "GET /update?api_key="+ apikeyWrite+"&field1="+String(smokeSensor);
 
   Serial.print("requesting URL: ");
@@ -105,8 +113,7 @@ void loop()
   wifiModule.println(url);
 
   esp8266Command("AT+CIPCLOSE=0\r\n",5000,DEBUG);
-
-  delay(interval);
+  }
 
 }
 
