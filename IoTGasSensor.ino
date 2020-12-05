@@ -8,7 +8,20 @@
 #define smokeLevel 400
 #define DEBUG true
 
+String ssid = "TIM-94381491";
+String apPassword = "mezzanino2018";
+String apikeyWrite = "7BOVDFDF19LSIQQ6";
+
 SoftwareSerial wifiModule(rxPin,txPin); // Connect TX pin of esp to the pin 2 of Arduino and RX pin of esp to the pin 3 of Arduino
+
+const unsigned int interval = 26000;
+
+String host = "api.thingspeak.com"; // cloud API host name
+String port = "80";
+
+int countTimesATRepeated = 0;
+
+boolean ATCommandResult = false;
 
 
 void setup()
@@ -32,14 +45,15 @@ void setup()
 
   esp8266Command("AT+RST\r\n",2000,DEBUG); // reset module
 
-  esp8266Command("AT+CWMODE=2\r\n",1000,DEBUG); // configure as access point
+  esp8266Command("AT+CWMODE=3\r\n",1000,DEBUG); // configure as access point and station
 
-  esp8266Command("AT+CIFSR\r\n",1000,DEBUG); // get ip address
-
-  esp8266Command("AT+CIPMUX=1\r\n",1000,DEBUG); // configure for multiple connections
-
-  esp8266Command("AT+CIPSERVER=1,80\r\n",1000,DEBUG); // turn on server on port 80
+  esp8266Command("AT+CWJAP=\""+ssid+"\",\""+apPassword+"\"\r\n",1000,DEBUG);
+  
+  delay(4000);
+  
+  
 }
+  
 
 void loop()
 
@@ -47,10 +61,12 @@ void loop()
 
   int smokeSensor = analogRead(smokeSensorPin);
 
-  if (smokeSensor > smokeLevel)
+    if (smokeSensor > smokeLevel)
 
   {
 
+    Serial.println("Smoke level above the threshold! "+smokeSensor);
+    
     digitalWrite(redLedPin, HIGH);
 
     digitalWrite(greenLedPin, LOW);
@@ -71,75 +87,26 @@ void loop()
 
   }
 
+  String url = "GET /update?api_key="+ apikeyWrite+"&field1="+String(smokeSensor);
 
-  if(wifiModule.available()) 
+  Serial.print("requesting URL: ");
+  Serial.println(url);
 
-  {
-    if(wifiModule.find("+IPD,"))
+  String requestLen = String(url.length() + 4);
 
-    {
+  Serial.println("Open TCP connection");
 
-     delay(1000);
+  esp8266Command("AT+CIPMUX=1\r\n",10000,DEBUG); // configure for multiple connections
 
-     int connectionId = wifiModule.read()-48;     
-     
-     String webPage = "<html><head><meta http-equiv='refresh' content='5' /></head><body>";
-      webPage += "<h1>IOT Smoke Detection System</h1>";
+  esp8266Command("AT+CIPSTART=0,\"TCP\",\"" + host +"\"," + port+"\r\n", 20000, DEBUG);
 
-      webPage +="<p>Smoke Value is ";
+  esp8266Command("AT+CIPSEND=0,"+requestLen+"\r\n",10000,DEBUG);
 
-      webPage += "<div id=\"smokeLevel\">"+String(smokeSensor)+"</div>";
+  wifiModule.println(url);
 
-      webPage +="</p>";
+  esp8266Command("AT+CIPCLOSE=0\r\n",5000,DEBUG);
 
-      if (smokeSensor > smokeLevel)
-
-  {
-
-    webPage +="<h5>DANGER! Move Somewhere Else</h5>";
-
-  }
-
-  else
-
-  {
-
-    webPage +="<h4>Everything Normal</h4>";
-
-  }
-     webPage+="</body></html>";
-     
-     String cipSend = "AT+CIPSEND=";
-
-     cipSend += connectionId;
-
-     cipSend += ",";
-
-     cipSend +=webPage.length();
-
-     cipSend +="\r\n";
-
-     
-
-     esp8266Command(cipSend,1000,DEBUG);
-
-     esp8266Command(webPage,1000,DEBUG);
-
-     
-
-     String closeCommand = "AT+CIPCLOSE="; 
-
-     closeCommand+=connectionId; // append connection id
-
-     closeCommand+="\r\n";
-
-     
-
-     esp8266Command(closeCommand,3000,DEBUG);
-
-    }
-
-  }
+  delay(interval);
 
 }
 
