@@ -8,9 +8,9 @@
 #define smokeLevel 400
 #define DEBUG true
 
-String ssid = "TIM-94381491";
-String apPassword = "mezzanino2018";
-String apikeyWrite = "7BOVDFDF19LSIQQ6";
+String ssid = "";
+String apPassword = "";
+String apikeyWrite = "";
 
 SoftwareSerial wifiModule(rxPin,txPin); // Connect TX pin of esp to the pin 2 of Arduino and RX pin of esp to the pin 3 of Arduino
 
