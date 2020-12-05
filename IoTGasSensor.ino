@@ -113,6 +113,7 @@ if (currentMillis - startMillis >= interval)  //test whether the period has elap
   wifiModule.println(url);
 
   esp8266Command("AT+CIPCLOSE=0\r\n",5000,DEBUG);
+  startMillis = currentMillis;
   }
 
 }
