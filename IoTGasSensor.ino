@@ -48,7 +48,7 @@ void setup()
 
   esp8266Command("AT+RST\r\n",2000,DEBUG); // reset module
 
-  esp8266Command("AT+CWMODE=3\r\n",1000,DEBUG); // configure as access point and station
+  esp8266Command("AT+CWMODE=1\r\n",1000,DEBUG); // configure as station
 
   esp8266Command("AT+CWJAP=\""+ssid+"\",\""+apPassword+"\"\r\n",1000,DEBUG);
   
