@@ -22,10 +22,6 @@ const unsigned long interval = 26000;
 String host = "api.thingspeak.com"; // cloud API host name
 String port = "80";
 
-int countTimesATRepeated = 0;
-
-boolean ATCommandResult = false;
-
 
 void setup()
 
